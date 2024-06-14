@@ -1,4 +1,5 @@
 import {OrbitControls} from './OrbitControls.js'
+import * as THREE from 'three';
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -14,13 +15,117 @@ function degrees_to_radians(degrees)
   return degrees * (pi/180);
 }
 
-// Add here the rendering of your goal
 
-// This is a sample box.
-const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-const material = new THREE.MeshBasicMaterial( {color: 0x000000} );
-const cube = new THREE.Mesh( geometry, material );
-scene.add( cube );
+// Helper function to create a cylinder
+function createCylinder(radiusTop, radiusBottom, height, radialSegments, color, wireframe) {
+    const geometry = new THREE.CylinderGeometry(radiusTop, radiusBottom, height, radialSegments);
+    const material = new THREE.MeshBasicMaterial({ color: color, wireframe: wireframe });
+    return new THREE.Mesh(geometry, material);
+}
+
+
+// Helper function to create a torus
+function createTorus(radius, tube, radialSegments, tubularSegments, color, wireframe) {
+    const geometry = new THREE.TorusGeometry(radius, tube, radialSegments, tubularSegments);
+    const material = new THREE.MeshBasicMaterial({ color: color, wireframe: wireframe });
+    return new THREE.Mesh(geometry, material);
+}
+
+
+// Helper function to apply a translation matrix
+function applyTranslation(mesh, x, y, z) {
+    const translationMatrix = new THREE.Matrix4().makeTranslation(x, y, z);
+    mesh.applyMatrix4(translationMatrix);
+}
+
+
+// Helper function to apply a rotation matrix
+function applyRotation(mesh, axis, angle) {
+    const rotationMatrix = new THREE.Matrix4().makeRotationAxis(axis, angle);
+    mesh.applyMatrix4(rotationMatrix);
+}
+
+// Create the goal structure
+const goalGroup = new THREE.Group();
+const goalWidth = 7.32; // Realistic width of a football goal in meters
+const goalHeight = 2.44; // Realistic height of a football goal in meters
+const postRadius = 0.1;
+const backSupportLength = 2.5;
+
+// Front goalposts
+const goalPost1 = createCylinder(postRadius, postRadius, goalHeight, 32, 0xffffff, true);
+applyTranslation(goalPost1, -goalWidth / 2, goalHeight / 2, 0);
+goalGroup.add(goalPost1);
+
+const goalPost2 = createCylinder(postRadius, postRadius, goalHeight, 32, 0xffffff, true);
+applyTranslation(goalPost2, goalWidth / 2, goalHeight / 2, 0);
+goalGroup.add(goalPost2);
+
+// Crossbar
+const crossbar = createCylinder(postRadius, postRadius, goalWidth, 32, 0xffffff, true);
+applyRotation(crossbar, new THREE.Vector3(0, 0, 1), degrees_to_radians(90));
+applyTranslation(crossbar, 0, goalHeight, 0);
+goalGroup.add(crossbar);
+
+// Back supports
+const backSupport1 = createCylinder(postRadius, postRadius, backSupportLength, 32, 0xffffff, true);
+applyRotation(backSupport1, new THREE.Vector3(1, 0, 0), degrees_to_radians(45));
+applyTranslation(backSupport1, -goalWidth / 2, goalHeight / 2, -backSupportLength / 2);
+// applyTranslation(backSupport1, -goalWidth / 2, backSupportLength * Math.sin(degrees_to_radians(45)) / 2, -backSupportLength * Math.cos(degrees_to_radians(45)) / 2);
+goalGroup.add(backSupport1);
+
+const backSupport2 = createCylinder(postRadius, postRadius, backSupportLength, 32, 0xffffff, true);
+applyRotation(backSupport2, new THREE.Vector3(1, 0, 0), degrees_to_radians(45));
+applyTranslation(backSupport2, goalWidth / 2, goalHeight / 2, -backSupportLength / 2);
+goalGroup.add(backSupport2);
+
+// Torus rings at the edges
+const torus1 = createTorus(postRadius, postRadius / 2, 16, 100, 0xffffff, true);
+applyTranslation(torus1, -goalWidth / 2, goalHeight, 0);
+goalGroup.add(torus1);
+
+const torus2 = createTorus(postRadius, postRadius / 2, 16, 100, 0xffffff, true);
+applyTranslation(torus2, goalWidth / 2, goalHeight, 0);
+goalGroup.add(torus2);
+
+const torus3 = createTorus(postRadius, postRadius / 2, 16, 100, 0x00000, true);
+applyTranslation(torus3, -goalWidth / 2, goalHeight / 2 - backSupportLength / 2, -backSupportLength);
+goalGroup.add(torus3);
+
+const torus4 = createTorus(postRadius, postRadius / 2, 16, 100, 0xffffff, true);
+applyTranslation(torus4, goalWidth / 2, goalHeight / 2 - backSupportLength / 2, -backSupportLength);
+goalGroup.add(torus4);
+
+// Nets
+// const netMaterial = new THREE.MeshBasicMaterial({ color: 0xd3d3d3, side: THREE.DoubleSide, wireframe: true });
+// const backNetGeometry = new THREE.PlaneGeometry(goalWidth, goalHeight);
+// const backNet = new THREE.Mesh(backNetGeometry, netMaterial);
+// applyTranslation(backNet, 0, goalHeight / 2, -backSupportLength);
+// goalGroup.add(backNet);
+
+// const sideNetGeometry = new THREE.PlaneGeometry(backSupportLength, goalHeight);
+// const sideNet1 = new THREE.Mesh(sideNetGeometry, netMaterial);
+// applyRotation(sideNet1, new THREE.Vector3(0, 1, 0), degrees_to_radians(90));
+// applyTranslation(sideNet1, -goalWidth / 2, goalHeight / 2, -backSupportLength / 2);
+// goalGroup.add(sideNet1);
+
+// const sideNet2 = new THREE.Mesh(sideNetGeometry, netMaterial);
+// applyRotation(sideNet2, new THREE.Vector3(0, 1, 0), degrees_to_radians(90));
+// applyTranslation(sideNet2, goalWidth / 2, goalHeight / 2, -backSupportLength / 2);
+// goalGroup.add(sideNet2);
+
+// Ball
+const ballGeometry = new THREE.SphereGeometry(goalHeight / 8, 32, 32);
+const ballMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true });
+const ball = new THREE.Mesh(ballGeometry, ballMaterial);
+applyTranslation(ball, 0, ballGeometry.parameters.radius, goalWidth / 2);
+scene.add(ball);
+
+// Add the goal group to the scene
+scene.add(goalGroup);
+
+// Position the camera
+camera.position.z = 15;
 
 
 // This defines the initial distance of the camera
