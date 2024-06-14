@@ -50,50 +50,54 @@ const goalGroup = new THREE.Group();
 const goalWidth = 7.32; // Realistic width of a football goal in meters
 const goalHeight = 2.44; // Realistic height of a football goal in meters
 const postRadius = 0.1;
-const backSupportLength = 2.5;
+const backSupportLength = 3.44;
+const radialSegments = 32;
 
 // Front goalposts
-const goalPost1 = createCylinder(postRadius, postRadius, goalHeight, 32, 0xffffff, true);
+const goalPost1 = createCylinder(postRadius, postRadius, goalHeight, radialSegments, 0xffffff, true);
 applyTranslation(goalPost1, -goalWidth / 2, goalHeight / 2, 0);
 goalGroup.add(goalPost1);
 
-const goalPost2 = createCylinder(postRadius, postRadius, goalHeight, 32, 0xffffff, true);
+const goalPost2 = createCylinder(postRadius, postRadius, goalHeight, radialSegments, 0xffffff, true);
 applyTranslation(goalPost2, goalWidth / 2, goalHeight / 2, 0);
 goalGroup.add(goalPost2);
 
 // Crossbar
-const crossbar = createCylinder(postRadius, postRadius, goalWidth, 32, 0xffffff, true);
+const crossbar = createCylinder(postRadius, postRadius, goalWidth, radialSegments, 0xffffff, true);
 applyRotation(crossbar, new THREE.Vector3(0, 0, 1), degrees_to_radians(90));
 applyTranslation(crossbar, 0, goalHeight, 0);
 goalGroup.add(crossbar);
 
 // Back supports
-const backSupport1 = createCylinder(postRadius, postRadius, backSupportLength, 32, 0xffffff, true);
+const backSupport1 = createCylinder(postRadius, postRadius, backSupportLength, radialSegments, 0xffffff, true);
 applyRotation(backSupport1, new THREE.Vector3(1, 0, 0), degrees_to_radians(45));
-applyTranslation(backSupport1, -goalWidth / 2, goalHeight / 2, -backSupportLength / 2);
-// applyTranslation(backSupport1, -goalWidth / 2, backSupportLength * Math.sin(degrees_to_radians(45)) / 2, -backSupportLength * Math.cos(degrees_to_radians(45)) / 2);
+applyTranslation(backSupport1, -goalWidth / 2, goalHeight / 2, -goalHeight / 2);
 goalGroup.add(backSupport1);
 
 const backSupport2 = createCylinder(postRadius, postRadius, backSupportLength, 32, 0xffffff, true);
 applyRotation(backSupport2, new THREE.Vector3(1, 0, 0), degrees_to_radians(45));
-applyTranslation(backSupport2, goalWidth / 2, goalHeight / 2, -backSupportLength / 2);
+applyTranslation(backSupport2, goalWidth / 2, goalHeight / 2, -goalHeight / 2);
 goalGroup.add(backSupport2);
 
 // Torus rings at the edges
-const torus1 = createTorus(postRadius, postRadius / 2, 16, 100, 0xffffff, true);
-applyTranslation(torus1, -goalWidth / 2, goalHeight, 0);
+const torus1 = createTorus(postRadius * 1.5, postRadius / 2, 16, 100, 0xffffff, true);
+applyRotation(torus1, new THREE.Vector3(1, 0, 0), Math.PI / 2); // Rotate 90 degrees around X-axis
+applyTranslation(torus1, -goalWidth / 2, postRadius / 2, 0);
 goalGroup.add(torus1);
 
-const torus2 = createTorus(postRadius, postRadius / 2, 16, 100, 0xffffff, true);
-applyTranslation(torus2, goalWidth / 2, goalHeight, 0);
+const torus2 = createTorus(postRadius * 1.5, postRadius / 2, 16, 100, 0xffffff, true);
+applyRotation(torus2, new THREE.Vector3(1, 0, 0), Math.PI / 2);
+applyTranslation(torus2, goalWidth / 2, postRadius / 2, 0);
 goalGroup.add(torus2);
 
-const torus3 = createTorus(postRadius, postRadius / 2, 16, 100, 0x00000, true);
-applyTranslation(torus3, -goalWidth / 2, goalHeight / 2 - backSupportLength / 2, -backSupportLength);
+const torus3 = createTorus(postRadius * 1.5, postRadius / 2, 16, 100, 0xffffff, true);
+applyRotation(torus3, new THREE.Vector3(1, 0, 0), Math.PI / 2);
+applyTranslation(torus3, -goalWidth / 2, 0, -backSupportLength * Math.cos(degrees_to_radians(45)));
 goalGroup.add(torus3);
 
-const torus4 = createTorus(postRadius, postRadius / 2, 16, 100, 0xffffff, true);
-applyTranslation(torus4, goalWidth / 2, goalHeight / 2 - backSupportLength / 2, -backSupportLength);
+const torus4 = createTorus(postRadius * 1.5, postRadius / 2, 16, 100, 0xffffff, true);
+applyRotation(torus4, new THREE.Vector3(1, 0, 0), Math.PI / 2);
+applyTranslation(torus4, goalWidth / 2, 0, -backSupportLength * Math.cos(degrees_to_radians(45)));
 goalGroup.add(torus4);
 
 // Nets
@@ -115,7 +119,7 @@ goalGroup.add(torus4);
 // goalGroup.add(sideNet2);
 
 // Ball
-const ballGeometry = new THREE.SphereGeometry(goalHeight / 8, 32, 32);
+const ballGeometry = new THREE.SphereGeometry(goalHeight / 9, 32, 32);
 const ballMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true });
 const ball = new THREE.Mesh(ballGeometry, ballMaterial);
 applyTranslation(ball, 0, ballGeometry.parameters.radius, goalWidth / 2);
