@@ -164,17 +164,38 @@ const controls = new OrbitControls( camera, renderer.domElement );
 
 let isOrbitEnabled = true;
 let wireframeEnabled = true;
+let speedFactor = 0.1;
+let animation1Enabled = false;
+let animation2Enabled = false;
 
 const toggleOrbit = (e) => {
 	if (e.key == "o"){
 		isOrbitEnabled = !isOrbitEnabled;
 	}
-    
+
     if (e.key === 'w') {
         wireframeEnabled = !wireframeEnabled;
         materials.forEach(material => {
             material.wireframe = wireframeEnabled;
         });
+    }
+
+    if (e.key === '+' || e.key === 'ArrowUp') {
+        speedFactor += 0.1; // Increase speed
+        console.log(`Speed increased by: ${speedFactor}`);
+    }
+
+    if (e.key === '-' || e.key === 'ArrowDown') {
+        speedFactor -= 0.1; // Decrease speed
+        console.log(`Speed decreased by: ${speedFactor}`);
+    }
+
+    if (e.key === '1') {  // continue from here, need to update the animate function to move the ball horizontally and vertically (implement 1 & 2)!! 
+        animation1Enabled = !animation1Enabled;
+        console.log(`Animation 1 ${animation1Enabled ? 'enabled' : 'disabled'}`);
+    }
+    if (e.key === '2') {
+        animation2Enabled = !animation2Enabled;
     }
 }
 
@@ -186,6 +207,8 @@ controls.update();
 function animate() {
 
 	requestAnimationFrame( animate );
+
+    // ball.position.x += speedFactor; // Move the ball horizontally based on the speed factor
 
 	controls.enabled = isOrbitEnabled;
 	controls.update();
