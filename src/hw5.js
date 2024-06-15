@@ -45,6 +45,9 @@ function applyRotation(mesh, axis, angle) {
     mesh.applyMatrix4(rotationMatrix);
 }
 
+// Array to hold all the materials
+const materials = [];
+
 // Create the goal structure
 const goalGroup = new THREE.Group();
 const goalWidth = 7.32; // Realistic width of a football goal in meters
@@ -101,7 +104,8 @@ applyTranslation(torus4, goalWidth / 2, postRadius / 2, -backSupportLength * Mat
 goalGroup.add(torus4);
 
 // Nets material
-const netMaterial = new THREE.MeshBasicMaterial({ color: 0xcccccc, side: THREE.DoubleSide, wireframe: false });
+const netMaterial = new THREE.MeshBasicMaterial({ color: 0xcccccc, side: THREE.DoubleSide, wireframe: true });
+materials.push(netMaterial);
 
 // Back net
 const backNetGeometry = new THREE.PlaneGeometry(goalWidth, goalHeight + 1);
@@ -137,17 +141,17 @@ goalGroup.add(sideNet2);
 // Ball
 const ballGeometry = new THREE.SphereGeometry(goalHeight / 8, 32, 32);
 const ballMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true });
+materials.push(ballMaterial);
 const ball = new THREE.Mesh(ballGeometry, ballMaterial);
 // applyTranslation(ball, 0, ballGeometry.parameters.radius, goalWidth / 2);
-applyTranslation(ball, 0, goalHeight / 3, 2); // Position the ball somewhere between the top and bottom of the goal
+applyTranslation(ball, 0, goalHeight / 3, 2.5); // Position the ball somewhere between the top and bottom of the goal
 scene.add(ball);
 
 // Add the goal group to the scene
 scene.add(goalGroup);
 
 // Position the camera
-camera.position.z = 15;
-
+camera.position.z = 5;
 
 // This defines the initial distance of the camera
 const cameraTranslate = new THREE.Matrix4();
@@ -159,11 +163,19 @@ renderer.render( scene, camera );
 const controls = new OrbitControls( camera, renderer.domElement );
 
 let isOrbitEnabled = true;
+let wireframeEnabled = true;
 
 const toggleOrbit = (e) => {
 	if (e.key == "o"){
 		isOrbitEnabled = !isOrbitEnabled;
 	}
+    
+    if (e.key === 'w') {
+        wireframeEnabled = !wireframeEnabled;
+        materials.forEach(material => {
+            material.wireframe = wireframeEnabled;
+        });
+    }
 }
 
 document.addEventListener('keydown',toggleOrbit)
