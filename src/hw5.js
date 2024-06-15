@@ -50,7 +50,7 @@ const goalGroup = new THREE.Group();
 const goalWidth = 7.32; // Realistic width of a football goal in meters
 const goalHeight = 2.44; // Realistic height of a football goal in meters
 const postRadius = 0.1;
-const backSupportLength = 3.44;
+const backSupportLength = 3.30;
 const radialSegments = 32;
 
 // Front goalposts
@@ -92,31 +92,47 @@ goalGroup.add(torus2);
 
 const torus3 = createTorus(postRadius * 1.5, postRadius / 2, 16, 100, 0xffffff, true);
 applyRotation(torus3, new THREE.Vector3(1, 0, 0), Math.PI / 2);
-applyTranslation(torus3, -goalWidth / 2, 0, -backSupportLength * Math.cos(degrees_to_radians(45)));
+applyTranslation(torus3, -goalWidth / 2, postRadius / 2, -backSupportLength * Math.cos(degrees_to_radians(45)));
 goalGroup.add(torus3);
 
 const torus4 = createTorus(postRadius * 1.5, postRadius / 2, 16, 100, 0xffffff, true);
 applyRotation(torus4, new THREE.Vector3(1, 0, 0), Math.PI / 2);
-applyTranslation(torus4, goalWidth / 2, 0, -backSupportLength * Math.cos(degrees_to_radians(45)));
+applyTranslation(torus4, goalWidth / 2, postRadius / 2, -backSupportLength * Math.cos(degrees_to_radians(45)));
 goalGroup.add(torus4);
 
-// Nets
-// const netMaterial = new THREE.MeshBasicMaterial({ color: 0xd3d3d3, side: THREE.DoubleSide, wireframe: true });
-// const backNetGeometry = new THREE.PlaneGeometry(goalWidth, goalHeight);
-// const backNet = new THREE.Mesh(backNetGeometry, netMaterial);
-// applyTranslation(backNet, 0, goalHeight / 2, -backSupportLength);
-// goalGroup.add(backNet);
+// Nets material
+const netMaterial = new THREE.MeshBasicMaterial({ color: 0xcccccc, side: THREE.DoubleSide, wireframe: false });
 
-// const sideNetGeometry = new THREE.PlaneGeometry(backSupportLength, goalHeight);
-// const sideNet1 = new THREE.Mesh(sideNetGeometry, netMaterial);
-// applyRotation(sideNet1, new THREE.Vector3(0, 1, 0), degrees_to_radians(90));
-// applyTranslation(sideNet1, -goalWidth / 2, goalHeight / 2, -backSupportLength / 2);
-// goalGroup.add(sideNet1);
+// Back net
+const backNetGeometry = new THREE.PlaneGeometry(goalWidth, goalHeight + 1);
+const backNet = new THREE.Mesh(backNetGeometry, netMaterial);
+applyRotation(backNet, new THREE.Vector3(1, 0, 0),degrees_to_radians(45));
+applyTranslation(backNet, 0, goalHeight / 2, -goalHeight / 2);
+goalGroup.add(backNet);
 
-// const sideNet2 = new THREE.Mesh(sideNetGeometry, netMaterial);
-// applyRotation(sideNet2, new THREE.Vector3(0, 1, 0), degrees_to_radians(90));
-// applyTranslation(sideNet2, goalWidth / 2, goalHeight / 2, -backSupportLength / 2);
-// goalGroup.add(sideNet2);
+// Side Net 1 (Left)
+const sideNet1Vertices = new Float32Array([
+    -goalWidth / 2, 0, 0,                  // Bottom front
+    -goalWidth / 2, goalHeight, 0,         // Top front
+    -goalWidth / 2, 0, -goalWidth / 3 // Bottom back
+]);
+
+const sideNet1Geometry = new THREE.BufferGeometry();
+sideNet1Geometry.setAttribute('position', new THREE.BufferAttribute(sideNet1Vertices, 3));
+const sideNet1 = new THREE.Mesh(sideNet1Geometry, netMaterial);
+goalGroup.add(sideNet1);
+
+// Side Net 2 (Right)
+const sideNet2Vertices = new Float32Array([
+    goalWidth / 2, 0, 0,                  // Bottom front
+    goalWidth / 2, goalHeight, 0,         // Top front
+    goalWidth / 2, 0, -goalWidth / 3 // Bottom back
+]);
+
+const sideNet2Geometry = new THREE.BufferGeometry();
+sideNet2Geometry.setAttribute('position', new THREE.BufferAttribute(sideNet2Vertices, 3));
+const sideNet2 = new THREE.Mesh(sideNet2Geometry, netMaterial);
+goalGroup.add(sideNet2);
 
 // Ball
 const ballGeometry = new THREE.SphereGeometry(goalHeight / 9, 32, 32);
