@@ -135,10 +135,11 @@ const sideNet2 = new THREE.Mesh(sideNet2Geometry, netMaterial);
 goalGroup.add(sideNet2);
 
 // Ball
-const ballGeometry = new THREE.SphereGeometry(goalHeight / 9, 32, 32);
+const ballGeometry = new THREE.SphereGeometry(goalHeight / 8, 32, 32);
 const ballMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true });
 const ball = new THREE.Mesh(ballGeometry, ballMaterial);
-applyTranslation(ball, 0, ballGeometry.parameters.radius, goalWidth / 2);
+// applyTranslation(ball, 0, ballGeometry.parameters.radius, goalWidth / 2);
+applyTranslation(ball, 0, goalHeight / 3, 2); // Position the ball somewhere between the top and bottom of the goal
 scene.add(ball);
 
 // Add the goal group to the scene
