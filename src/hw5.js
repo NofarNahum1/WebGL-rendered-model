@@ -45,6 +45,12 @@ function applyRotation(mesh, axis, angle) {
     mesh.applyMatrix4(rotationMatrix);
 }
 
+// Helper function to apply a scaling matrix
+function applyScaling(mesh, scaleFactor) {
+    const scalingMatrix = new THREE.Matrix4().makeScale(scaleFactor, scaleFactor, scaleFactor);
+    mesh.applyMatrix4(scalingMatrix);
+}
+
 // Array to hold all the materials
 const materials = [];
 
@@ -139,11 +145,10 @@ const sideNet2 = new THREE.Mesh(sideNet2Geometry, netMaterial);
 goalGroup.add(sideNet2);
 
 // Ball
-const ballGeometry = new THREE.SphereGeometry(goalHeight / 8, 32, 32);
+const ballGeometry = new THREE.SphereGeometry(goalHeight / 8, 32, 32); // Ball to goal vertical scale ratio: 1:8
 const ballMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true });
 materials.push(ballMaterial);
 const ball = new THREE.Mesh(ballGeometry, ballMaterial);
-// applyTranslation(ball, 0, ballGeometry.parameters.radius, goalWidth / 2);
 applyTranslation(ball, 0, goalHeight / 3, 2.5); // Position the ball somewhere between the top and bottom of the goal
 scene.add(ball);
 
@@ -159,6 +164,11 @@ cameraTranslate.makeTranslation(0,0,5);
 camera.applyMatrix4(cameraTranslate)
 
 renderer.render( scene, camera );
+
+function shrinkGoal() {
+    const shrinkFactor = 0.95;
+    goalGroup.scale.multiplyScalar(shrinkFactor);
+}
 
 const controls = new OrbitControls( camera, renderer.domElement );
 
@@ -190,12 +200,20 @@ const toggleOrbit = (e) => {
         console.log(`Speed decreased by: ${speedFactor}`);
     }
 
-    if (e.key === '1') {  // continue from here, need to update the animate function to move the ball horizontally and vertically (implement 1 & 2)!! 
+    if (e.key === '1') {
         animation1Enabled = !animation1Enabled;
         console.log(`Animation 1 ${animation1Enabled ? 'enabled' : 'disabled'}`);
     }
+
     if (e.key === '2') {
         animation2Enabled = !animation2Enabled;
+        console.log(`Animation 2 ${animation2Enabled ? 'enabled' : 'disabled'}`);
+    }
+
+    if (e.key === '3') {
+        const shrinkFactor = 0.95;
+        // goalGroup.scale.multiplyScalar(shrinkFactor);
+        applyScaling(goalGroup, shrinkFactor);
     }
 }
 
@@ -208,7 +226,36 @@ function animate() {
 
 	requestAnimationFrame( animate );
 
-    // ball.position.x += speedFactor; // Move the ball horizontally based on the speed factor
+    const goalZPosition = -backSupportLength - 10;
+    const goalXPosition = goalWidth + 10;
+    const circleRadius = 0.2; // Radius for circular motion
+    const circleCenterY = ball.position.y; // Center of the circle
+
+// need to implement "1" and "2" functionality!!! ----------------
+    if (animation1Enabled) {
+        // X := originX + cos(angle)*radius;
+        // Y := originY + sin(angle)*radius;
+        
+        const angle = ball.position.x + speedFactor * 0.01; // Angle for circular motion
+        ball.position.x = ball.position.x + Math.cos(angle) * circleRadius;
+        ball.position.y = ball.position.y + Math.sin(angle) * circleRadius;
+
+        // // Ensure the ball enters the goal
+        // if (ball.position.z < goalZPosition) {
+        //     ball.position.z = goalZPosition; // Move ball to goal position
+        //     ball.position.y = circleCenterY; // Reset Y to complete the circle
+        // }
+    }
+
+    if (animation2Enabled) {
+        ball.rotation.y += speedFactor * 0.01; // Rotate around Y-axis
+        ball.position.x += speedFactor * 0.01; // Move sideways
+        // ball.position.y = Math.sin(ball.position.x) * ballRadius; // Circular motion along Y-axis
+        // Ensure the ball enters the goal
+        if (ball.position.x > goalXPosition) {
+            ball.position.x = goalXPosition;
+        }
+    }
 
 	controls.enabled = isOrbitEnabled;
 	controls.update();
