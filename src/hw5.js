@@ -9,17 +9,20 @@ renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 scene.background = new THREE.Color( 'ForestGreen' );
 
+// Ambient light (simplest form of light) - for EX6
+// const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // color, intensity (0.5)
+// scene.add(ambientLight);
+
 function degrees_to_radians(degrees)
 {
   var pi = Math.PI;
   return degrees * (pi/180);
 }
 
-
 // Helper function to create a cylinder
 function createCylinder(radiusTop, radiusBottom, height, radialSegments, color, wireframe) {
     const geometry = new THREE.CylinderGeometry(radiusTop, radiusBottom, height, radialSegments);
-    const material = new THREE.MeshBasicMaterial({ color: color, wireframe: wireframe });
+    const material = new THREE.MeshBasicMaterial({ color: color, wireframe: wireframe }); // should switch to MeshPhongMaterial in EX6
     return new THREE.Mesh(geometry, material);
 }
 
@@ -27,7 +30,7 @@ function createCylinder(radiusTop, radiusBottom, height, radialSegments, color, 
 // Helper function to create a torus
 function createTorus(radius, tube, radialSegments, tubularSegments, color, wireframe) {
     const geometry = new THREE.TorusGeometry(radius, tube, radialSegments, tubularSegments);
-    const material = new THREE.MeshBasicMaterial({ color: color, wireframe: wireframe });
+    const material = new THREE.MeshBasicMaterial({ color: color, wireframe: wireframe }); // should switch to MeshPhongMaterial in EX6
     return new THREE.Mesh(geometry, material);
 }
 
