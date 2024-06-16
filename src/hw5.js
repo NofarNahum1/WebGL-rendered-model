@@ -147,13 +147,24 @@ sideNet2Geometry.setAttribute('position', new THREE.BufferAttribute(sideNet2Vert
 const sideNet2 = new THREE.Mesh(sideNet2Geometry, netMaterial);
 goalGroup.add(sideNet2);
 
+
+// // ball Texture loader
+// const ballTextureLoader = new THREE.TextureLoader();
+// const soccerBallTexture = ballTextureLoader.load('ball.png'); 
+
 // Ball
 const ballGeometry = new THREE.SphereGeometry(goalHeight / 8, 32, 32); // Ball to goal vertical scale ratio: 1:8
 const ballMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true });
+//const ballMaterial = new THREE.MeshPhongMaterial({ map: soccerBallTexture });
 materials.push(ballMaterial);
 const ball = new THREE.Mesh(ballGeometry, ballMaterial);
 applyTranslation(ball, 0, goalHeight / 3, 2.5); // Position the ball somewhere between the top and bottom of the goal
 scene.add(ball);
+
+// // Add directional light for better shading
+// const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+// directionalLight.position.set(0, 1, 1).normalize();
+// scene.add(directionalLight);
 
 // Add the goal group to the scene
 scene.add(goalGroup);
@@ -232,7 +243,7 @@ const controls = new OrbitControls( camera, renderer.domElement );
 
 let isOrbitEnabled = true;
 let wireframeEnabled = true;
-let speedFactor = 0.1;
+let speedFactor = 0.05;
 let animation1Enabled = false;
 let animation2Enabled = false;
 
@@ -249,12 +260,12 @@ const toggleOrbit = (e) => {
     }
 
     if (e.key === '+' || e.key === 'ArrowUp') {
-        speedFactor += 0.1; // Increase speed
+        speedFactor += 0.005; // Increase speed
         console.log(`Speed increased by: ${speedFactor}`);
     }
 
     if (e.key === '-' || e.key === 'ArrowDown') {
-        speedFactor -= 0.1; // Decrease speed
+        speedFactor -= 0.005; // Decrease speed
         console.log(`Speed decreased by: ${speedFactor}`);
     }
 
@@ -293,30 +304,40 @@ function animate() {
     const circleRadius = 0.2; // Radius for circular motion
     const circleCenterY = ball.position.y; // Center of the circle
 
-// need to implement "1" and "2" functionality!!! ----------------
     if (animation1Enabled) {
-        // X := originX + cos(angle)*radius;
-        // Y := originY + sin(angle)*radius;
+        // Rotate the ball around the Y-axis
+        const center = new THREE.Vector3(0, ball.position.y, 0);
         
-        const angle = ball.position.x + speedFactor * 0.01; // Angle for circular motion
-        ball.position.x = ball.position.x + Math.cos(angle) * circleRadius;
-        ball.position.y = ball.position.y + Math.sin(angle) * circleRadius;
-
-        // // Ensure the ball enters the goal
-        // if (ball.position.z < goalZPosition) {
-        //     ball.position.z = goalZPosition; // Move ball to goal position
-        //     ball.position.y = circleCenterY; // Reset Y to complete the circle
-        // }
+        const translateToOriginMatrix = new THREE.Matrix4().makeTranslation(-center.x, -center.y, -center.z);
+        const translateBackMatrix = new THREE.Matrix4().makeTranslation(center.x, center.y, center.z);
+        const rotationMatrix = new THREE.Matrix4().makeRotationY(-speedFactor); // the ball will rotate to the left direction
+    
+        // Multiply all matrices in this order: translate to origin then rotate and then translate back
+        const resultMatrix = new THREE.Matrix4();
+        resultMatrix.multiply(translateBackMatrix)
+                            .multiply(rotationMatrix)
+                            .multiply(translateToOriginMatrix);
+    
+        // Apply the result matrix to the ball's matrix
+        ball.applyMatrix4(resultMatrix);
     }
 
     if (animation2Enabled) {
-        ball.rotation.y += speedFactor * 0.01; // Rotate around Y-axis
-        ball.position.x += speedFactor * 0.01; // Move sideways
-        // ball.position.y = Math.sin(ball.position.x) * ballRadius; // Circular motion along Y-axis
-        // Ensure the ball enters the goal
-        if (ball.position.x > goalXPosition) {
-            ball.position.x = goalXPosition;
-        }
+        // Rotate the ball around the X-axis
+        const center = new THREE.Vector3(0, ball.position.x + 3, 0);
+        
+        const translateToOriginMatrix = new THREE.Matrix4().makeTranslation(-center.x, -center.y, -center.z);
+        const translateBackMatrix = new THREE.Matrix4().makeTranslation(center.x, center.y, center.z);
+        const rotationMatrix = new THREE.Matrix4().makeRotationX(speedFactor); // the ball will rotate upwards
+    
+        // Multiply all matrices in this order: translate to origin then rotate and then translate back
+        const resultMatrix = new THREE.Matrix4();
+        resultMatrix.multiply(translateBackMatrix)
+                            .multiply(rotationMatrix)
+                            .multiply(translateToOriginMatrix);
+    
+        // Apply the result matrix to the ball's matrix
+        ball.applyMatrix4(resultMatrix);
     }
 
 	controls.enabled = isOrbitEnabled;
