@@ -147,24 +147,13 @@ sideNet2Geometry.setAttribute('position', new THREE.BufferAttribute(sideNet2Vert
 const sideNet2 = new THREE.Mesh(sideNet2Geometry, netMaterial);
 goalGroup.add(sideNet2);
 
-
-// // ball Texture loader
-// const ballTextureLoader = new THREE.TextureLoader();
-// const soccerBallTexture = ballTextureLoader.load('ball.png'); 
-
 // Ball
 const ballGeometry = new THREE.SphereGeometry(goalHeight / 8, 32, 32); // Ball to goal vertical scale ratio: 1:8
 const ballMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true });
-//const ballMaterial = new THREE.MeshPhongMaterial({ map: soccerBallTexture });
 materials.push(ballMaterial);
 const ball = new THREE.Mesh(ballGeometry, ballMaterial);
 applyTranslation(ball, 0, goalHeight / 3, 2.5); // Position the ball somewhere between the top and bottom of the goal
 scene.add(ball);
-
-// // Add directional light for better shading
-// const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-// directionalLight.position.set(0, 1, 1).normalize();
-// scene.add(directionalLight);
 
 // Add the goal group to the scene
 scene.add(goalGroup);
@@ -261,22 +250,18 @@ const toggleOrbit = (e) => {
 
     if (e.key === '+' || e.key === 'ArrowUp') {
         speedFactor += 0.005; // Increase speed
-        console.log(`Speed increased by: ${speedFactor}`);
     }
 
     if (e.key === '-' || e.key === 'ArrowDown') {
         speedFactor -= 0.005; // Decrease speed
-        console.log(`Speed decreased by: ${speedFactor}`);
     }
 
     if (e.key === '1') {
         animation1Enabled = !animation1Enabled;
-        console.log(`Animation 1 ${animation1Enabled ? 'enabled' : 'disabled'}`);
     }
 
     if (e.key === '2') {
         animation2Enabled = !animation2Enabled;
-        console.log(`Animation 2 ${animation2Enabled ? 'enabled' : 'disabled'}`);
     }
 
     if (e.key === '3') {
@@ -324,7 +309,7 @@ function animate() {
 
     if (animation2Enabled) {
         // Rotate the ball around the X-axis
-        const center = new THREE.Vector3(0, ball.position.x + 3, 0);
+        const center = new THREE.Vector3(0, ball.position.x + goalHeight, 0);
         
         const translateToOriginMatrix = new THREE.Matrix4().makeTranslation(-center.x, -center.y, -center.z);
         const translateBackMatrix = new THREE.Matrix4().makeTranslation(center.x, center.y, center.z);
