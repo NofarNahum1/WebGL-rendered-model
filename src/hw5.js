@@ -173,6 +173,61 @@ function shrinkGoal() {
     goalGroup.scale.multiplyScalar(shrinkFactor);
 }
 
+// party time setup:
+
+// Particle system parameters
+const particleCount = 1000;
+const particles = new THREE.BufferGeometry();
+const textureLoader = new THREE.TextureLoader();
+const particleTexture = textureLoader.load('https://threejs.org/examples/textures/sprites/disc.png'); // Example texture
+
+// Create arrays to hold particle attributes
+const positions = new Float32Array(particleCount * 3); // x, y, z for each particle
+const sizes = new Float32Array(particleCount); // size for each particle
+const colors = new Float32Array(particleCount * 3); // r, g, b for each particle
+
+// Populate particle attributes
+for (let i = 0; i < particleCount; i++) {
+    positions[i * 3] = Math.random() * 100 - 50; // x
+    positions[i * 3 + 1] = Math.random() * 100 - 50; // y
+    positions[i * 3 + 2] = Math.random() * 100 - 50; // z
+    sizes[i] = Math.random() * 2 + 1; // random size between 1 and 3
+    colors[i * 3] = Math.random(); // random red component
+    colors[i * 3 + 1] = Math.random(); // random green component
+    colors[i * 3 + 2] = Math.random(); // random blue component
+}
+
+// Set attributes to BufferGeometry
+particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+particles.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+particles.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+// Particle material
+const particleMaterial = new THREE.PointsMaterial({
+    size: 1,
+    map: particleTexture,
+    vertexColors: true, // enable vertex colors
+    blending: THREE.AdditiveBlending,
+    transparent: true
+});
+
+// Create particle system
+const particleSystem = new THREE.Points(particles, particleMaterial);
+particleSystem.sortParticles = true;
+particleSystem.visible = false; // Start hidden
+
+// Add particle system to scene
+scene.add(particleSystem);
+
+// Function to trigger celebration (simulate ball entering goal)
+function triggerCelebration() {
+    particleSystem.visible = true; // Show particles
+    
+    setTimeout(() => {
+        particleSystem.visible = false; // Hide particles after celebration
+    }, 1000); // Hide particles after 3 seconds (adjust as needed)
+}
+
 const controls = new OrbitControls( camera, renderer.domElement );
 
 let isOrbitEnabled = true;
@@ -217,6 +272,10 @@ const toggleOrbit = (e) => {
         const shrinkFactor = 0.95;
         // goalGroup.scale.multiplyScalar(shrinkFactor);
         applyScaling(goalGroup, shrinkFactor);
+    }
+
+    if (e.key === 'g') {
+        triggerCelebration();
     }
 }
 
